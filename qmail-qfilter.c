@@ -213,8 +213,9 @@ int write_envelope(int envpipe[2])
 /* Create a temporary invisible file opened for read/write */
 int mktmpfile()
 {
-  const char* filename = tempnam(TMPDIR, "fixheaders.");
-  int fd = open(filename, O_RDWR | O_CREAT | O_EXCL, 0600);
+  char filename[sizeof(TMPDIR)+19] = TMPDIR "/fixheaders.XXXXXX";
+  
+  int fd = mkstemp(filename);
   if(fd == -1)
     return -1;
 
