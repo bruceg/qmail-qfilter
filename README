@@ -38,6 +38,9 @@ How to use:
   will have their content filtered through qmail-inject, which will add
   missing "From:", "Date:", and "Message-Id:" headers.
 
+Changes in version 1.1:
+- Fixed a bug in building the linked list of commands to run.
+
 This program is Copyright(C) 2000 Bruce Guenter, and may be copied
 according to the GNU GENERAL PUBLIC LICENSE (GPL) Version 2 or a later
 version.  A copy of this license is included with this package.  This
