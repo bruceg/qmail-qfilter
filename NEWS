@@ -8,6 +8,7 @@ Changes in version 1.3
   consider this acceptable, since 64KB worth of recipients is likely
   more than 1000 anyways.
 - Removed some GNU-specific constructs from the source and Makefile.
+- Included a sample MIME filename extension scanning filter.
 -------------------------------------------------------------------------------
 Changes in version 1.2
 
