@@ -291,9 +291,9 @@ int run_filters(command* first, int fdin)
       exit(QQ_INTERNAL);
     }
     if(waitpid(pid, &status, WUNTRACED) == -1)
-      return QQ_INTERNAL;
+      return -QQ_INTERNAL;
     if(!WIFEXITED(status))
-      return -WIFEXITED(status);
+      return -QQ_INTERNAL;
     if(WEXITSTATUS(status))
       return -WEXITSTATUS(status);
     close(fdin);
