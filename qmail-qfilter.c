@@ -200,6 +200,18 @@ int mktmpfile()
   return fd;
 }
 
+/* Renumber from one FD to another */
+int move_fd(int currfd, int newfd)
+{
+  if (currfd == newfd)
+    return newfd;
+  if (dup2(currfd, newfd) != newfd)
+    return -1;
+  if (close(currfd) != 0)
+    return -1;
+  return newfd;
+}
+
 /* Copy from one FD to a temporary FD */
 int copy_fd(int fdin)
 {
@@ -292,10 +304,8 @@ int run_filters(command* first, int fdin)
     if(pid == -1)
       return -QQ_OOM;
     if(pid == 0) {
-      if(close(0) == -1 ||
-	 dup2(fdin, 0) != 0 ||
-	 close(1) == -1 ||
-	 dup2(fdout, 1) != 1)
+      if(move_fd(fdin, 0) != 0 ||
+	 move_fd(fdout, 1) != 1)
 	exit(QQ_WRITE_ERROR);
       execvp(c->argv[0], c->argv);
       exit(QQ_INTERNAL);
@@ -336,11 +346,8 @@ int main(int argc, char* argv[])
   if(msgfd < 0)
     return (-msgfd == QQ_DROP_MSG) ? 0 : -msgfd;
 
-  if (dup2(msgfd, 0) != 0
-      || close(msgfd) != 0
-      || dup2(envfd, 1) != 1
-      || close(envfd) != 0
-      )
+  if (move_fd(msgfd, 0) != 0
+      || move_fd(envfd, 1) != 1)
     return QQ_INTERNAL;
   execl(QMAIL_QUEUE, QMAIL_QUEUE, 0);
   return QQ_INTERNAL;
