@@ -31,6 +31,7 @@ qmail-qfilter: qmail-qfilter.o
 	$(LD) $(LDFLAGS) -o $@ qmail-qfilter.o $(LIBS)
 
 qmail-qfilter.o: qmail-qfilter.c
+	$(CC) $(CFLAGS) $(DEFINES) -o $@ -c $<
 
 install: install.bin install.man
 
