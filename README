@@ -54,8 +54,10 @@ Notes on writing a filter program:
 - If you want to block an email, exit from the filter with code 31.
   This will cause qmail-qfilter to exit with the same error code, and
   qmail-smtpd (for example) to send an error code to the client.
-- See deny-filetypes for an example script that blocks potentially
-  dangerous attachments types based on their filename extensions.
+- If you want to silently drop an email, exit with code 99.
+
+See deny-filetypes for an example script that blocks potentially
+dangerous attachments types based on their filename extensions.
 
 This program is Copyright(C) 2000 Bruce Guenter, and may be copied
 according to the GNU GENERAL PUBLIC LICENSE (GPL) Version 2 or a later

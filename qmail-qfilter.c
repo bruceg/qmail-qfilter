@@ -29,6 +29,8 @@
 #define QQ_INTERNAL 81
 #define QQ_BAD_ENV 91
 
+#define QQ_DROP_MSG 99
+
 /* remap the appropriate FDs and exec qmail-queue */
 int run_qmail_queue(int tmpfd, int envpipe[2])
 {
@@ -346,7 +348,7 @@ int main(int argc, char* argv[])
 
   tmpfd = run_filters(filters, tmpfd);
   if(tmpfd < 0)
-    return -tmpfd;
+    return (-tmpfd == QQ_DROP_MSG) ? 0 : -tmpfd;
 
   queue_pid = fork();
   switch(queue_pid) {
