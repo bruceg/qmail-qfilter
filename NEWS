@@ -1,5 +1,15 @@
 -------------------------------------------------------------------------------
-Changes in version 1.6
+Changes in version 2.0
+
+- Added support for modifying the message envelope as well as the body.
+
+- If either the body or envelope output is empty, the input is reused
+  as-is.
+
+Development of this version has been sponsored by Saffron Solutions,
+Inc. http://www.saffron.net/
+-------------------------------------------------------------------------------
+Changes in version 1.6 (unreleased)
 
 - Added a work-around for systems that lack unsetenv (notably Solaris).
 

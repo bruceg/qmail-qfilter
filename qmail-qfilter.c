@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/fcntl.h>
-#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <signal.h>
 #include <unistd.h>
@@ -274,19 +274,44 @@ command* parse_args(int argc, char* argv[])
   return head;
 }
 
+static void mktmpfd(int fd)
+{
+  int tmp;
+  close(fd);
+  tmp = mktmpfile();
+  move_fd(tmp, fd);
+}
+
+static void move_unless_empty(int src, int dst, const void* reopen)
+{
+  struct stat st;
+  if (fstat(src, &st) != 0)
+    exit(QQ_INTERNAL);
+  if (st.st_size > 0) {
+    move_fd(src, dst);
+    if (reopen) {
+      mktmpfd(src);
+      if (lseek(dst, 0, SEEK_SET) != 0)
+	exit(QQ_WRITE_ERROR);
+    }
+  }
+  else
+    if (!reopen)
+      close(src);
+}
+
 /* Run each of the filters in sequence */
 void run_filters(const command* first)
 {
   const command* c;
   
+  mktmpfd(MSGOUT);
+  mktmpfd(ENVOUT);
+
   for(c = first; c; c = c->next) {
     pid_t pid;
     int status;
-    int fdout;
 
-    close(MSGOUT);
-    fdout = mktmpfile();
-    move_fd(fdout, MSGOUT);
     pid = fork();
     if(pid == -1)
       exit(QQ_OOM);
@@ -300,9 +325,8 @@ void run_filters(const command* first)
       exit(QQ_INTERNAL);
     if(WEXITSTATUS(status))
       exit((WEXITSTATUS(status) == QQ_DROP_MSG) ? 0 : WEXITSTATUS(status));
-    move_fd(MSGOUT, MSGIN);
-    if(lseek(MSGIN, 0, SEEK_SET) != 0)
-      exit(QQ_WRITE_ERROR);
+    move_unless_empty(MSGOUT, MSGIN, c->next);
+    move_unless_empty(ENVOUT, ENVIN, c->next);
   }
 }
 
