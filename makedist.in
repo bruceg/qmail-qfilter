@@ -1,5 +1,6 @@
 PKGURL=http://em.ca/~bruceg/qmail-qfilter/
 LISTSUB="bgware-subscribe@lists.em.ca"
+LISTURL=http://lists.em.ca/?list=bgware
 MAKERPM=true
 NOARCH=
 DOCS=""
