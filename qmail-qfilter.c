@@ -82,12 +82,11 @@ void mysetenvu(const char* key, unsigned long val)
   mysetenv(key, buf + i, sizeof buf - 1 - i);
 }
 
-static const char* env = 0;
 static size_t env_len = 0;
 static size_t msg_len = 0;
 
 /* Parse the sender address into user and host portions */
-int parse_sender(void)
+size_t parse_sender(const char* env)
 {
   const char* ptr = env;
   char* at;
@@ -121,7 +120,7 @@ int parse_sender(void)
   return ptr + len + 1 - env;
 }
 
-void parse_rcpts(int offset)
+void parse_rcpts(const char* env, int offset)
 {
   size_t len = env_len - offset;
   const char* ptr = env + offset;
@@ -145,11 +144,13 @@ void parse_rcpts(int offset)
 
 void parse_envelope(void)
 {
-  int rcpts;
+  const char* env;
+  size_t offset;
   if ((env = mmap(0, env_len, PROT_READ, MAP_PRIVATE, ENVIN, 0)) == MAP_FAILED)
     exit(QQ_OOM);
-  rcpts = parse_sender();
-  parse_rcpts(rcpts);
+  offset = parse_sender(env);
+  parse_rcpts(env, offset);
+  munmap((void*)env, env_len);
 }
 
 /* Create a temporary invisible file opened for read/write */
