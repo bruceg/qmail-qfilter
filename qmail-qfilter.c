@@ -289,11 +289,10 @@ static void move_unless_empty(int src, int dst, const void* reopen)
     exit(QQ_INTERNAL);
   if (st.st_size > 0) {
     move_fd(src, dst);
-    if (reopen) {
+    if (lseek(dst, 0, SEEK_SET) != 0)
+      exit(QQ_WRITE_ERROR);
+    if (reopen)
       mktmpfd(src);
-      if (lseek(dst, 0, SEEK_SET) != 0)
-	exit(QQ_WRITE_ERROR);
-    }
   }
   else
     if (!reopen)
