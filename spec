@@ -30,6 +30,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc COPYING README deny-filetypes
+%doc COPYING README samples
 /usr/bin/qmail-qfilter
 /usr/man/man1/*.1

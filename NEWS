@@ -4,6 +4,7 @@ Changes in version 1.4
 - Added a new "drop message" exit code -- if the filter exits with code
   99, qmail-qfilter immediately exits successfully without calling
   qmail-queue.
+- Some documentation fixups.
 -------------------------------------------------------------------------------
 Changes in version 1.3
 

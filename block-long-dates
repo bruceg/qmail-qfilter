@@ -1,9 +1,0 @@
-#!/usr/bin/perl
-while(<>) {
-  print;
-  last if /^\n$/o;
-  exit 31 if /^Date: .{80,}/oi;
-}                                                                               
-while(<>) {
-  print;
-}
