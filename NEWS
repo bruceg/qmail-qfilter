@@ -10,8 +10,8 @@ Changes in version 2.0
   recipients to filters through environment variables $ENVSIZE,
   $MSGSIZE, and $NUMRCPTS respectively.
 
-Development of this version has been sponsored by Saffron Solutions,
-Inc. http://www.saffron.net/
+Development of this version has been sponsored by Saffron Solutions, Inc.
+http://www.saffron.net/
 -------------------------------------------------------------------------------
 Changes in version 1.6 (unreleased)
 
