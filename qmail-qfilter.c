@@ -126,6 +126,7 @@ bool read_envelope()
     newbuf = malloc(sizeof(bufchain));
     newbuf->len = rd;
     newbuf->buf = malloc(rd);
+    newbuf->next = 0;
     memcpy(newbuf->buf, buf, rd);
     if(tail)
       tail->next = newbuf;
