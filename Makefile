@@ -22,7 +22,7 @@ LIBS	=
 RM	= rm -f
 
 PROGS	= qmail-qfilter
-SCRIPTS	= block-long-dates deny-filetypes
+SCRIPTS	=
 MAN1S	= qmail-qfilter.1
 
 all: $(PROGS)
