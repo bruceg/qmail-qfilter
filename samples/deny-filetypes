@@ -10,10 +10,15 @@
 # is not common for mail clients.
 #
 # Notes on the list of extensions:
+# BAT - Batch file
 # CHM - Compiled HTML help file, can contain scripts
+# CMD - Windows NT command script?
+# COM - "Command" executable
+# CPL - Control Panel Extension
 # EXE - executable
 # HLP - Windows help files, can contain auto-executing VBScript
 # HTA - HTML application, can contain VBScript, JavaScript, etc.
+# LNK - Windows shortcut, may contain program instructions.
 # PIF - Program Information File
 # REG - Regedit will inject its contents into the registry
 # SCR - Screen capture, interpreted as an executable binary
@@ -21,12 +26,12 @@
 # VBE - VisualBasic Enterprise ?
 # VBS - VisualBasic Script
 # WSF - Windows Scripting File (same as VBS)
-# WSH - ???
+# WSH - Windows Script Host property settings file
 #
 sub check_filename {
     local($_) = @_;
     print "filename: $_\n" if $test;
-    if(/\.(chm|exe|hlp|hta|pif|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi) {
+    if(/\.(bat|chm|cmd|com|cpl|exe|hlp|hta|lnk|pif|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi) {
       print "Filenamed matched a banned extension!\n" if $test;
       exit(31);
     }
@@ -38,8 +43,8 @@ sub parse_content_td {
     s/\s+/ /go;
     print "parse: $_\n" if $test;
     &check_filename($1)
-	if /[;\s]name\s*=\s*"([^\"]+)"/ || /[;\s]name\s*=\s*(\S+)/ ||
-	    /[;\s]filename\s*=\s*"([^\"]+)"/ || /[;\s]filename\s*=\s*(\S+)/;
+	if /[;\s]name\s*=\s*"([^\"]+)"/i || /[;\s]name\s*=\s*(\S+)/i ||
+	    /[;\s]filename\s*=\s*"([^\"]+)"/i || /[;\s]filename\s*=\s*(\S+)/i;
 }
 
 if($ARGV[0] eq '-t') {

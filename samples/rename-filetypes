@@ -6,10 +6,15 @@
 # the following filename extensions.
 #
 # Notes on the list of extensions:
+# BAT - Batch file
 # CHM - Compiled HTML help file, can contain scripts
+# CMD - Windows NT command script?
+# COM - "Command" executable
+# CPL - Control Panel Extension
 # EXE - executable
 # HLP - Windows help files, can contain auto-executing VBScript
 # HTA - HTML application, can contain VBScript, JavaScript, etc.
+# LNK - Windows shortcut, may contain program instructions.
 # PIF - Program Information File
 # REG - Regedit will inject its contents into the registry
 # SCR - Screen capture, interpreted as an executable binary
@@ -17,7 +22,7 @@
 # VBE - VisualBasic Enterprise ?
 # VBS - VisualBasic Script
 # WSF - Windows Scripting File (same as VBS)
-# WSH - ???
+# WSH - Windows Script Host property settings file
 #
 
 my $content_td;
@@ -29,7 +34,7 @@ sub check_filename {
     print "filename = $_\n" if $test;
 
     s/"//g;
-    $_ .= ".txt" if /\.(chm|exe|hlp|scr|hta|pif|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi;
+    $_ .= ".txt" if /\.(bat|chm|cmd|com|cpl|exe|hlp|scr|hta|lnk|pif|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi;
 
     return "\"$_\"";
 }
@@ -41,7 +46,7 @@ sub parse_content_td {
     s/\s+/ /go;
     print "parse: $_\n" if $test;	
 
-    s/([;\s](file)?name\s*=\s*)(("[^"]+")|\S+)/$1 . check_filename($3)/e;
+    s/([;\s](file)?name\s*=\s*)(("[^"]+")|\S+)/$1 . check_filename($3)/ie;
 
     return $_;
 
