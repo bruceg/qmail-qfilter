@@ -15,6 +15,7 @@
 # HLP - Windows help files, can contain auto-executing VBScript
 # HTA - HTML application, can contain VBScript, JavaScript, etc.
 # REG - Regedit will inject its contents into the registry
+# SCR - Script file ?
 # SHS - Shell automation code
 # VBE - VisualBasic Enterprise ?
 # VBS - VisualBasic Script
@@ -24,7 +25,7 @@
 sub check_filename {
     local($_) = @_;
     print "filename: $_\n" if $test;
-    if(/\.(chm|exe|hlp|hta|reg|shs|vbe|vbs|wsf|wsh)$/oi) {
+    if(/\.(chm|exe|hlp|hta|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi) {
       print "Filenamed matched a banned extension!\n" if $test;
       exit(31);
     }
