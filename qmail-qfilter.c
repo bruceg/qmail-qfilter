@@ -52,6 +52,7 @@ const bool true = 0 == 0;
 #define MSGOUT 1
 #define ENVIN 3
 #define ENVOUT 4
+#define QQFD 5
 
 static const char* qqargv[2];
 
@@ -301,6 +302,22 @@ static void move_unless_empty(int src, int dst, const void* reopen)
       close(src);
 }
 
+static void read_qqfd(void)
+{
+  struct stat st;
+  char* buf;
+  if (fstat(QQFD, &st) != 0)
+    exit(QQ_INTERNAL);
+  if (st.st_size > 0) {
+    if ((buf = malloc(st.st_size)) == 0)
+      exit(QQ_INTERNAL);
+    if (read(QQFD, buf, st.st_size) != st.st_size)
+      exit(QQ_INTERNAL);
+    qqargv[0] = buf;
+  }
+  close(QQFD);
+}
+
 /* Run each of the filters in sequence */
 void run_filters(const command* first)
 {
@@ -328,6 +345,8 @@ void run_filters(const command* first)
       exit((WEXITSTATUS(status) == QQ_DROP_MSG) ? 0 : WEXITSTATUS(status));
     move_unless_empty(MSGOUT, MSGIN, c->next);
     move_unless_empty(ENVOUT, ENVIN, c->next);
+    if (lseek(QQFD, 0, SEEK_SET) != 0)
+      exit(QQ_WRITE_ERROR);
   }
 }
 
@@ -344,9 +363,11 @@ int main(int argc, char* argv[])
   copy_fd(1, ENVIN);
   if(!read_envelope())
     return QQ_BAD_ENV;
+  mktmpfd(QQFD);
 
   run_filters(filters);
 
+  read_qqfd();
   move_fd(ENVIN, 1);
   execv(qqargv[0], (char**)qqargv);
   return QQ_INTERNAL;
