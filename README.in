@@ -1,12 +1,21 @@
-qmail-qfilter
+@PACKAGE@
 qmail-queue multi-filter front end
 Bruce Guenter <bruceg@em.ca>
-Version 1.6
-2001-09-21
+Version @VERSION@
+@TODAY@
 
 This program allows the body of a message to be filtered through a
 series of filters before being passed to the real qmail-queue program,
 and injected into the qmail queue.
+
+A mailing list has been set up to discuss this and other packages.
+To subscribe, send an email to:
+	bgware-subscribe@lists.untroubled.org
+A mailing list archive is available at:
+	http://lists.untroubled.org/?list=bgware
+
+Development versions of @PACKAGE@ are available via Subversion at:
+	svn://bruce-guenter.dyndns.org/@PACKAGE@/trunk
 
 Requirements:
 
@@ -61,7 +70,7 @@ Notes on writing a filter program:
 
 See the scripts in the "samples" directory for example scripts.
 
-This program is Copyright(C) 2000 Bruce Guenter, and may be copied
+This program is Copyright(C) 2004 Bruce Guenter, and may be copied
 according to the GNU GENERAL PUBLIC LICENSE (GPL) Version 2 or a later
 version.  A copy of this license is included with this package.  This
 package comes with no warranty of any kind.
