@@ -10,7 +10,9 @@ URL: http://em.ca/~bruceg/@PACKAGE@/
 Packager: Bruce Guenter <bruceg@em.ca>
 
 %description
-This package allows SMTP relaying for any host that authenticates with POP3.
+This program allows the body of a message to be filtered through a
+series of filters before being passed to the real qmail-queue program,
+and injected into the qmail queue.
 
 %prep
 %setup

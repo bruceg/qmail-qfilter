@@ -59,6 +59,9 @@ Notes on writing a filter program:
 See deny-filetypes for an example script that blocks potentially
 dangerous attachments types based on their filename extensions.
 
+See block-long-dates for an example script that blocks messages with
+long date strings (exploit for an Outlook Express bug).
+
 This program is Copyright(C) 2000 Bruce Guenter, and may be copied
 according to the GNU GENERAL PUBLIC LICENSE (GPL) Version 2 or a later
 version.  A copy of this license is included with this package.  This

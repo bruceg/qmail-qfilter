@@ -8,6 +8,6 @@ EXTRAS_VER="README NEWS ANNOUNCEMENT"
 EXTRAS_DIST="COPYING"
 VERSION_BASE=""
 WEBSITE=em.ca
-WEBDIR=qmail-qfilter
+WEBDIR=www/qmail-qfilter
 RPMUPLOAD=
 LIST="bgware@lists.em.ca rpms@lists.em.ca"
