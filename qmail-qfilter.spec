@@ -1,6 +1,6 @@
 Name: qmail-qfilter
 Summary: qmail-queue filter front end
-Version: 1.2
+Version: 1.3
 Release: 1
 Copyright: GPL
 Group: Utilities/System
