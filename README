@@ -1,0 +1,44 @@
+qmail-qfilter
+qmail-queue multi-filter front end
+Bruce Guenter <bruceg@em.ca>
+Version 1.0
+January 23, 2000
+
+This pair of programs controls access to relaying for users that
+authenticate using checkpassword.  At this time, this means POP3 using
+the qmail-popup/qmail-pop3d servers.
+
+Requirements:
+
+- This program is designed to take advantage of my QMAILQUEUE patch,
+  which causes programs that would execute qmail-queue (such as
+  qmail-smtpd etc.) to execute an alternative program.
+
+How to install:
+
+- Check the definitions at the top of qmail-qfilter.c, especially the
+  value of TMPDIR.  This should be set to a temporary directory that
+  only the executor of qmail-qfilter has write access to.
+- Check the Makefile for appropriate values for your compiler and
+  linker, and installation paths.
+- Run "make"
+
+How to use:
+
+- Create a script containing an invocation of qmail-qfilter.  For
+  example, a script that uses qmail-inject as a front end to qmail-queue
+  would contain:
+	#!/bin/sh
+	exec /path/to/qmail-qfilter /var/qmail/bin/qmail-inject -n
+- Set the environment variable QMAILQUEUE to the location of this
+  script.  For example, in a SMTP rules files, put:
+	A.B.C.D:allow,RELAYCLIENT="",QMAILQUEUE="/usr/local/bin/qmail-qftest"
+  and rebuild the SMTP CDB file.
+- You're all set!  In our example, all messages sent from the IP A.B.C.D
+  will have their content filtered through qmail-inject, which will add
+  missing "From:", "Date:", and "Message-Id:" headers.
+
+This program is Copyright(C) 2000 Bruce Guenter, and may be copied
+according to the GNU GENERAL PUBLIC LICENSE (GPL) Version 2 or a later
+version.  A copy of this license is included with this package.  This
+package comes with no warranty of any kind.

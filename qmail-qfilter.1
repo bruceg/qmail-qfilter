@@ -1,0 +1,52 @@
+.TH qmail-qfilter 1
+.SH NAME
+qmail-qfilter \- front end for qmail-queue that does filtering
+.SH SYNOPSIS
+.B qmail-qfilter
+.I filter
+[
+.I -- filter ...
+]
+.SH DESCRIPTION
+.B qmail-qfilter
+sends the message text through each of the filter commands named on
+the command line.
+Each filter is run seperately, with standard input opened to the input
+email, and standard output opened to a new temporary file that will
+become the input to either the next filter, or
+.BR qmail-queue .
+Each filter on the command line in seperated with
+.BR -- .
+.SH "RETURN VALUES"
+Returns 51 (out of memory), 53 (write error), or 81 (internal error)
+if it can't create the temporary files or has problems executing the
+filters.
+Returns 91 (bad envelope data) if it can't read or parse the envelope
+data.
+If a filter exits with a non-zero exit code,
+.B qmail-qfilter
+returns its exit code.
+Otherwise returns the exit code of
+.BR qmail-queue .
+.SH ENVIRONMENT
+.B qmail-qfilter
+sets
+.B QMAILUSER
+and
+.B QMAILHOST
+to the user and host portions of the envelope sender address, and
+unsets
+.BR QMAILNAME .
+.SH "SEE ALSO"
+qmail-queue(8)
+.SH WARNINGS
+If you are using
+.B qmail-inject -n
+as one of the filters, you may want to unset
+.BR MAILUSER ,
+.BR USER ,
+and
+.B LOGNAME
+by using
+.B env -u MAILUSER -u USER -u LOGNAME qmail-inject
+as the command to invoke qmail-inject.
