@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+#
+# Written by Faried Nawaz <fn@hungry.org>
+#
+# This is a filter that rerenames dangerous MIME attachments with one of
+# the following filename extensions.
+#
+# Notes on the list of extensions:
+# CHM - Compiled HTML help file, can contain scripts
+# EXE - executable
+# HLP - Windows help files, can contain auto-executing VBScript
+# HTA - HTML application, can contain VBScript, JavaScript, etc.
+# REG - Regedit will inject its contents into the registry
+# SHS - Shell automation code
+# VBE - VisualBasic Enterprise ?
+# VBS - VisualBasic Script
+# WSF - Windows Scripting File (same as VBS)
+# WSH - ???
+#
+
+my $content_td;
+my $test;
+
+sub check_filename {
+    local($_) = @_;
+
+    print "filename = $_\n" if $test;
+
+    s/"//g;
+    $_ .= ".txt" if(/\.(chm|exe|hlp|scr|hta|reg|shs|vbe|vbs|wsf|wsh)$/oi);
+
+    return "\"$_\"";
+}
+
+sub parse_content_td {
+    local($_) = @_;
+
+    chomp;
+    s/\s+/ /go;
+    print "parse: $_\n" if $test;	
+
+    s/([;\s](file)?name\s*=\s*)(("[^"]+")|\S+)/$1 . check_filename($3)/e;
+
+    return $_;
+
+}
+
+
+if($ARGV[0] eq '-t') {
+  $test = 1;
+  shift @ARGV;
+}
+
+
+while (<>) {
+    $content_td = $_ if /^Content-(Type|Disposition):\s*(.*)$/oi;
+
+    if ($content_td) {
+	if (/^\s*$/o || /^\S/o) {
+	    print &parse_content_td($content_td) . "\n";
+	    undef $content_td;
+	} else {
+	    print unless $test;
+	    $content_td .= $_;
+	    next;
+	}
+    } else {
+	print unless $test;
+    }
+}
