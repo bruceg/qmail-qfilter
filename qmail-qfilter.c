@@ -257,8 +257,11 @@ static void move_unless_empty(int src, int dst, const void* reopen,
     exit(QQ_INTERNAL);
   if (st.st_size > 0) {
     move_fd(src, dst);
-    if (reopen)
+    if (reopen) {
       mktmpfd(src);
+      if (src == ENVOUT)
+	parse_envelope();
+    }
     *var = st.st_size;
   }
   else
