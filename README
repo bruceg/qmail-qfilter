@@ -40,9 +40,9 @@ How to use, with the QMAILQUEUE patch applied to qmail:
 
 How to use, without the QMAILQUEUE patch:
 - Change the definition of QMAIL_QUEUE in qmail-qfilter.c to a different
-  value, either by editing the source file or by modifying the CFLAGS
+  value, either by editing the source file or by modifying the DEFINES
   line in the Makefile to read:
-	CFLAGS  = -O -Wall -DQMAIL_QUEUE=\"/var/qmail/bin/qmail-queue-old\"
+	-DQMAIL_QUEUE=\"/var/qmail/bin/qmail-queue-old\"
 - Compile qmail-qfilter.
 - Rename qmail-queue to the new filename specified above.
 - Create a script to replace qmail-queue that contains an invocation of
