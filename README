@@ -2,7 +2,7 @@ qmail-qfilter
 qmail-queue multi-filter front end
 Bruce Guenter <bruceg@em.ca>
 Version 1.4
-2000-08-23
+2000-08-24
 
 This program allows the body of a message to be filtered through a
 series of filters before being passed to the real qmail-queue program,
@@ -55,6 +55,9 @@ Notes on writing a filter program:
   This will cause qmail-qfilter to exit with the same error code, and
   qmail-smtpd (for example) to send an error code to the client.
 - If you want to silently drop an email, exit with code 99.
+- The filter script that executes qmail-queue MUST NOT be setuid, and
+  MUST BE readable.  Only the real qmail-queue binary needs to be
+  setuid.
 
 See the scripts in the "samples" directory for example scripts.
 
