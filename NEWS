@@ -1,4 +1,11 @@
 -------------------------------------------------------------------------------
+Changes in version 1.6
+
+- Added a work-around for systems that lack unsetenv (notably Solaris).
+
+Development of this version has been sponsored by FutureQuest, Inc.
+ossi@FutureQuest.net  http://www.FutureQuest.net/
+-------------------------------------------------------------------------------
 Changes in version 1.5
 
 - Fixed a bug in handling the empty sender envelope.

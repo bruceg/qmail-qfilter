@@ -25,8 +25,8 @@ RPMUPLOAD = [
 	#( 'incoming.redhat.com', 'libc6' ),
 	]
 
-# Set LIST to the mailing list(s) to send the announcement to
-LIST = [
+# Set LISTS to the mailing list(s) to send the announcement to
+LISTS = [
 	'bgware@lists.em.ca',
 	'rpms@lists.em.ca',
 	]
