@@ -10,7 +10,9 @@
 # EXE - executable
 # HLP - Windows help files, can contain auto-executing VBScript
 # HTA - HTML application, can contain VBScript, JavaScript, etc.
+# PIF - Program Information File
 # REG - Regedit will inject its contents into the registry
+# SCR - Screen capture, interpreted as an executable binary
 # SHS - Shell automation code
 # VBE - VisualBasic Enterprise ?
 # VBS - VisualBasic Script
@@ -27,7 +29,7 @@ sub check_filename {
     print "filename = $_\n" if $test;
 
     s/"//g;
-    $_ .= ".txt" if(/\.(chm|exe|hlp|scr|hta|reg|shs|vbe|vbs|wsf|wsh)$/oi);
+    $_ .= ".txt" if /\.(chm|exe|hlp|scr|hta|pif|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi;
 
     return "\"$_\"";
 }

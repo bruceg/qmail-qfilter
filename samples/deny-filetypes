@@ -16,7 +16,7 @@
 # HTA - HTML application, can contain VBScript, JavaScript, etc.
 # PIF - Program Information File
 # REG - Regedit will inject its contents into the registry
-# SCR - Script file ?
+# SCR - Screen capture, interpreted as an executable binary
 # SHS - Shell automation code
 # VBE - VisualBasic Enterprise ?
 # VBS - VisualBasic Script
