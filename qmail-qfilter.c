@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include "fork.h"
 #include "setenv.h"
+#include "unsetenv.h"
 
 #ifndef TMPDIR
 #define TMPDIR "/tmp"
