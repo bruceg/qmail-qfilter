@@ -40,6 +40,6 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc COPYING README samples
+%doc COPYING NEWS README samples
 %{_bindir}/qmail-qfilter
 %{_mandir}/man1/*
