@@ -79,8 +79,7 @@ int parse_sender(void)
   unsetenv("QMAILNAME");
   
   if(!*ptr)
-    return putenv("QMAILUSER=") != -1 &&
-      putenv("QMAILHOST=") != -1;
+    return (putenv("QMAILUSER=") != -1 && putenv("QMAILHOST=") != -1) ?  2 : 0;
 
   at = strrchr(ptr, '@');
   if(!at)
