@@ -162,6 +162,7 @@ bool read_envelope()
     tail = newbuf;
     env_len += rd;
   }
+  if (!tail) return false;
   tail->next = 0;
 
   /* copy the buffer chain into a single buffer */
