@@ -154,7 +154,7 @@ bool read_envelope()
 
     rd = read(ENVIN, buf, BUFSIZE);
     if(rd == -1)
-      return false;
+      exit(QQ_BAD_ENV);
     if(rd == 0)
       break;
     newbuf = malloc(sizeof(bufchain));
@@ -168,10 +168,10 @@ bool read_envelope()
     tail = newbuf;
     env_len += rd;
   }
-  if (!tail) return false;
+  if (!tail) exit(QQ_BAD_ENV);
   tail->next = 0;
   if (lseek(ENVIN, 0, SEEK_SET) != 0)
-    return 0;
+    exit(QQ_WRITE_ERROR);
 
   /* copy the buffer chain into a single buffer */
   ptr = malloc(env_len);
@@ -195,69 +195,48 @@ int mktmpfile()
   
   int fd = mkstemp(filename);
   if(fd == -1)
-    return -1;
+    exit(QQ_WRITE_ERROR);
 
   /* The following makes the temporary file disappear immediately on
      program exit. */
   if(unlink(filename) == -1)
-    return -1;
+    exit(QQ_WRITE_ERROR);
   
   return fd;
 }
 
 /* Renumber from one FD to another */
-int move_fd(int currfd, int newfd)
+void move_fd(int currfd, int newfd)
 {
   if (currfd == newfd)
-    return newfd;
+    return;
   if (dup2(currfd, newfd) != newfd)
-    return -1;
+    exit(QQ_WRITE_ERROR);
   if (close(currfd) != 0)
-    return -1;
-  return newfd;
+    exit(QQ_WRITE_ERROR);
 }
 
 /* Copy from one FD to a temporary FD */
-int copy_fd(int fdin, int fdout)
+void copy_fd(int fdin, int fdout)
 {
   int tmp = mktmpfile();
-  if(tmp == -1)
-    return -QQ_WRITE_ERROR;
   
   /* Copy the message into the temporary file */
   for(;;) {
     char buf[BUFSIZE];
     ssize_t rd = read(fdin, buf, BUFSIZE);
     if(rd == -1)
-      return -QQ_WRITE_ERROR;
+      exit(QQ_WRITE_ERROR);
     if(rd == 0)
       break;
     if(write(tmp, buf, rd) != rd)
-      return -QQ_WRITE_ERROR;
+      exit(QQ_WRITE_ERROR);
   }
 
   close(fdin);
-  if (lseek(tmp, 0, SEEK_SET) != 0
-      || move_fd(tmp, fdout) != fdout
-      )
-    return -QQ_WRITE_ERROR;
-
-  return 0;
-}
-
-/* Wait for qmail-queue to exit, and return an error code */
-int wait_qq(pid_t pid, int error)
-{
-  int status;
-  if(waitpid(pid, &status, WUNTRACED) == -1)
-    return QQ_INTERNAL;
-
-  if(!WIFEXITED(status))
-    error = QQ_INTERNAL;
-  else if(WEXITSTATUS(status))
-    error = WEXITSTATUS(status);
-  
-  return error;
+  if (lseek(tmp, 0, SEEK_SET) != 0)
+    exit(QQ_WRITE_ERROR);
+  move_fd(tmp, fdout);
 }
 
 struct command
@@ -278,7 +257,7 @@ command* parse_args(int argc, char* argv[])
     while(end < argc && strcmp(argv[end], "--"))
       ++end;
     if(end == 0)
-      return 0;
+      exit(QQ_INTERNAL);
     argv[end] = 0;
     cmd = malloc(sizeof(command));
     cmd->argv = argv;
@@ -296,9 +275,9 @@ command* parse_args(int argc, char* argv[])
 }
 
 /* Run each of the filters in sequence */
-int run_filters(command* first)
+void run_filters(const command* first)
 {
-  command* c;
+  const command* c;
   
   for(c = first; c; c = c->next) {
     pid_t pid;
@@ -306,53 +285,41 @@ int run_filters(command* first)
     int fdout;
 
     close(MSGOUT);
-    if ((fdout = mktmpfile()) == -1
-	|| move_fd(fdout, MSGOUT) != MSGOUT
-	)
-      return -QQ_WRITE_ERROR;
+    fdout = mktmpfile();
+    move_fd(fdout, MSGOUT);
     pid = fork();
     if(pid == -1)
-      return -QQ_OOM;
+      exit(QQ_OOM);
     if(pid == 0) {
       execvp(c->argv[0], c->argv);
       exit(QQ_INTERNAL);
     }
     if(waitpid(pid, &status, WUNTRACED) == -1)
-      return -QQ_INTERNAL;
+      exit(QQ_INTERNAL);
     if(!WIFEXITED(status))
-      return -QQ_INTERNAL;
+      exit(QQ_INTERNAL);
     if(WEXITSTATUS(status))
-      return -WEXITSTATUS(status);
-    if (move_fd(MSGOUT, MSGIN) != MSGIN)
-      return -QQ_WRITE_ERROR;
+      exit((WEXITSTATUS(status) == QQ_DROP_MSG) ? 0 : WEXITSTATUS(status));
+    move_fd(MSGOUT, MSGIN);
     if(lseek(MSGIN, 0, SEEK_SET) != 0)
-      return -QQ_WRITE_ERROR;
+      exit(QQ_WRITE_ERROR);
   }
-  return 0;
 }
 
 int main(int argc, char* argv[])
 {
-  int error;
-  command* filters;
+  const command* filters;
   
   filters = parse_args(argc-1, argv+1);
-  if(!filters)
-    return QQ_INTERNAL;
 
-  if ((error = copy_fd(0, 0)) < 0)
-    return -error;
-
-  if ((error = copy_fd(1, ENVIN)) < 0)
-    return -error;
+  copy_fd(0, 0);
+  copy_fd(1, ENVIN);
   if(!read_envelope())
     return QQ_BAD_ENV;
 
-  if ((error = run_filters(filters)) < 0)
-    return (-error == QQ_DROP_MSG) ? 0 : -error;
+  run_filters(filters);
 
-  if (move_fd(ENVIN, 1) != 1)
-    return QQ_INTERNAL;
+  move_fd(ENVIN, 1);
   execl(QMAIL_QUEUE, QMAIL_QUEUE, 0);
   return QQ_INTERNAL;
 }
