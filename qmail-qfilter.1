@@ -95,3 +95,8 @@ option.
 A message with an excessive number of recipients (more than 64K bytes of
 recipient data on Linux) will cause execution of the filter programs to
 fail, and for the message to be rejected.
+.P
+The same temporary file is reused for file descriptor 5 for each filter.
+Make sure each filter writes a trailing ASCII NUL byte following the
+program name, as multiple filters could otherwise overwrite the value in
+undesireable ways.
