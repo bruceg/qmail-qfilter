@@ -1,12 +1,12 @@
-Name: qmail-qfilter
+Name: @PACKAGE@
 Summary: qmail-queue filter front end
-Version: 1.3
+Version: @VERSION@
 Release: 2
 Copyright: GPL
 Group: Utilities/System
-Source: http://em.ca/~bruceg/qmail-qfilter/%{PACKAGE_VERSION}/qmail-qfilter-%{PACKAGE_VERSION}.tar.gz
-BuildRoot: /tmp/qmail-qfilter
-URL: http://em.ca/~bruceg/qmail-qfilter/
+Source: http://em.ca/~bruceg/@PACKAGE@/%{PACKAGE_VERSION}/@PACKAGE@-%{PACKAGE_VERSION}.tar.gz
+BuildRoot: /tmp/@PACKAGE@-root
+URL: http://em.ca/~bruceg/@PACKAGE@/
 Packager: Bruce Guenter <bruceg@em.ca>
 
 %description
