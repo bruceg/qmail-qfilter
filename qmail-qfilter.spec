@@ -1,7 +1,7 @@
 Name: qmail-qfilter
 Summary: qmail-queue filter front end
 Version: 1.3
-Release: 1
+Release: 2
 Copyright: GPL
 Group: Utilities/System
 Source: http://em.ca/~bruceg/qmail-qfilter/%{PACKAGE_VERSION}/qmail-qfilter-%{PACKAGE_VERSION}.tar.gz
@@ -28,6 +28,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc COPYING README
+%doc COPYING README deny-filetypes
 /usr/bin/qmail-qfilter
 /usr/man/man1/*.1
