@@ -23,6 +23,20 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <unistd.h>
+#include "fork.h"
+#include "setenv.h"
+
+#ifndef TMPDIR
+#define TMPDIR "/tmp"
+#endif
+
+#ifndef BUFSIZE
+#define BUFSIZE 4096
+#endif
+
+#ifndef QMAIL_QUEUE
+#define QMAIL_QUEUE "/var/qmail/bin/qmail-queue"
+#endif
 
 #define QQ_OOM 51
 #define QQ_WRITE_ERROR 53
@@ -36,8 +50,7 @@ int run_qmail_queue(int tmpfd, int envpipe[2])
 {
   if(close(envpipe[1]) == -1 ||
      dup2(tmpfd, 0) != 0 || close(tmpfd) == -1 ||
-     dup2(envpipe[0], 1) != 1 || close(envpipe[0]) == -1 ||
-     close(2) == -1)
+     dup2(envpipe[0], 1) != 1 || close(envpipe[0]) == -1)
     return QQ_WRITE_ERROR;
   execl(QMAIL_QUEUE, QMAIL_QUEUE, 0);
   return QQ_INTERNAL;
@@ -309,8 +322,7 @@ int run_filters(command* first, int fdin)
       if(close(0) == -1 ||
 	 dup2(fdin, 0) != 0 ||
 	 close(1) == -1 ||
-	 dup2(fdout, 1) != 1 ||
-	 close(2) == -1)
+	 dup2(fdout, 1) != 1)
 	exit(QQ_WRITE_ERROR);
       execvp(c->argv[0], c->argv);
       exit(QQ_INTERNAL);
