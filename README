@@ -1,8 +1,8 @@
 qmail-qfilter
 qmail-queue multi-filter front end
 Bruce Guenter <bruceg@em.ca>
-Version 1.2
-May 11, 2000
+Version 1.4
+2000-07-20
 
 This program allows the body of a message to be filtered through a
 series of filters before being passed to the real qmail-queue program,
@@ -49,6 +49,13 @@ How to use, without the QMAILQUEUE patch:
   qmail-qfilter, as described in the previous example.
 - You're all set!  All mail entering the queue will be filtered by your
   filter.
+
+Notes on writing a filter program:
+- If you want to block an email, exit from the filter with code 31.
+  This will cause qmail-qfilter to exit with the same error code, and
+  qmail-smtpd (for example) to send an error code to the client.
+- See deny-filetypes for an example script that blocks potentially
+  dangerous attachments types based on their filename extensions.
 
 This program is Copyright(C) 2000 Bruce Guenter, and may be copied
 according to the GNU GENERAL PUBLIC LICENSE (GPL) Version 2 or a later

@@ -1,3 +1,6 @@
+PACKAGE = qmail-qfilter
+VERSION	= 1.4
+
 prefix	= /usr
 bindir	= $(prefix)/bin
 mandir	= $(prefix)/man
@@ -8,50 +11,38 @@ installdata = $(install) -m 644
 installbin = $(install) -m 755
 installdir = $(install) -d
 
-progs	= qmail-qfilter
-
-PACKAGE = qmail-qfilter
-VERSION	= 1.3
-
 CC	= gcc
 # Choose TMPDIR carefully.  See README for details.
 DEFINES = -DTMPDIR=\"/tmp\" -DBUFSIZE=4096 \
 	-DQMAIL_QUEUE=\"/var/qmail/bin/qmail-queue\"
-CFLAGS	= -O -Wall -g
+CFLAGS	= -O -Wall -g $(DEFINES)
 LD	= $(CC)
 LDFLAGS	= -g
 LIBS	=
 RM	= rm -f
 
-all: $(progs)
+PROGS	= qmail-qfilter
+SCRIPTS	= deny-filetypes
+MAN1S	= qmail-qfilter.1
+
+all: $(PROGS)
 
 qmail-qfilter: qmail-qfilter.o
 	$(LD) $(LDFLAGS) -o $@ qmail-qfilter.o $(LIBS)
 
-.c.o: $<
-	$(CC) $(CFLAGS) $(DEFINES) -c $<
+qmail-qfilter.o: qmail-qfilter.c
 
 install: install.bin install.man
 
-install.bin: $(progs)
+install.bin: $(PROGS)
 	$(installdir) $(bindir)
-	$(installbin) $(progs) $(bindir)
+	$(installbin) $(PROGS) $(bindir)
 
-install.man:
+install.man: $(MAN1S)
 	$(installdir) $(man1dir)
-	$(installdata) *.1 $(man1dir)
-
-rpmdir	= $(HOME)/redhat
-
-dist:
-	rm -rf qmail-qfilter-$(VERSION)
-	mkdir qmail-qfilter-$(VERSION)
-	cp *.c *.1 *.spec COPYING README Makefile deny-filetypes \
-		qmail-qfilter-$(VERSION)
-	tar -czvf qmail-qfilter-$(VERSION).tar.gz qmail-qfilter-$(VERSION)
-	rm -rf qmail-qfilter-$(VERSION)
+	$(installdata) $(MAN1S) $(man1dir)
 
 clean:
-	$(RM) core *.o $(progs)
+	$(RM) core *.o $(PROGS)
 	$(RM) qmail-qfilter-$(VERSION).tar.gz
 	$(RM) qmail-qfilter-$(VERSION)-?.*.rpm
