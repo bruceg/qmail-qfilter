@@ -57,7 +57,7 @@ const bool true = 0 == 0;
 static const char* qqargv[2];
 
 /* a replacement for setenv(3) for systems that don't have one */
-bool mysetenv(const char* key, const char* val, size_t vallen)
+void mysetenv(const char* key, const char* val, size_t vallen)
 {
   char* tmp;
   size_t keylen;
@@ -68,7 +68,8 @@ bool mysetenv(const char* key, const char* val, size_t vallen)
   tmp[keylen] = '=';
   memcpy(tmp+keylen+1, val, vallen);
   tmp[keylen+1+vallen] = 0;
-  return putenv(tmp) != -1;
+  if (putenv(tmp) != 0)
+    exit(QQ_OOM);
 }
 
 static const char* env = 0;
@@ -82,38 +83,39 @@ int parse_sender(void)
   size_t len = strlen(ptr);
   
   if(*ptr != 'F')
-    return 0;
+    exit(QQ_BAD_ENV);
   ++ptr;
   
   unsetenv("QMAILNAME");
   
-  if(!*ptr)
-    return (putenv("QMAILUSER=") != -1 && putenv("QMAILHOST=") != -1) ?  2 : 0;
+  if(!*ptr) {
+    if (putenv("QMAILUSER=") != 0
+	|| putenv("QMAILHOST=") != 0)
+      exit(QQ_OOM);
+    return 2;
+  }
 
   at = strrchr(ptr, '@');
   if(!at) {
     len = strlen(ptr);
-    if(!mysetenv("QMAILUSER", ptr, len) ||
-       putenv("QMAILHOST=") == -1)
-      return 0;
+    mysetenv("QMAILUSER", ptr, len);
+    putenv("QMAILHOST=");
   }
   else {
     len = strlen(at);
-    if(!mysetenv("QMAILUSER", ptr, at-ptr) ||
-       !mysetenv("QMAILHOST", at+1, len-1))
-      return 0;
+    mysetenv("QMAILUSER", ptr, at-ptr);
+    mysetenv("QMAILHOST", at+1, len-1);
     ptr = at;
   }
   return ptr + len + 1 - env;
 }
 
-bool parse_rcpts(int offset)
+void parse_rcpts(int offset)
 {
   size_t len = env_len - offset;
   const char* ptr = env + offset;
   char* buf = malloc(len);
   char* tmp = buf;
-  bool result;
   while(ptr < env + env_len && *ptr == 'T') {
     size_t rcptlen = strlen(++ptr);
     memcpy(tmp, ptr, rcptlen);
@@ -122,17 +124,14 @@ bool parse_rcpts(int offset)
     ptr += rcptlen + 1;
   }
   *tmp = 0;
-  result = mysetenv("QMAILRCPTS", buf, tmp-buf);
+  mysetenv("QMAILRCPTS", buf, tmp-buf);
   free(buf);
-  return result;
 }
 
-bool parse_envelope(void)
+void parse_envelope(void)
 {
   int rcpts = parse_sender();
-  if(!rcpts)
-    return false;
-  return parse_rcpts(rcpts);
+  parse_rcpts(rcpts);
 }
 
 struct bufchain
@@ -144,7 +143,7 @@ struct bufchain
 typedef struct bufchain bufchain;
 
 /* Read the envelope from FD 1, and parse the sender address */
-bool read_envelope()
+void read_envelope()
 {
   bufchain* head = 0;
   bufchain* tail = 0;
@@ -188,7 +187,7 @@ bool read_envelope()
     head = next;
   }
   
-  return parse_envelope();
+  parse_envelope();
 }
 
 /* Create a temporary invisible file opened for read/write */
@@ -362,8 +361,7 @@ int main(int argc, char* argv[])
 
   copy_fd(0, 0);
   copy_fd(1, ENVIN);
-  if(!read_envelope())
-    return QQ_BAD_ENV;
+  read_envelope();
   mktmpfd(QQFD);
 
   run_filters(filters);
