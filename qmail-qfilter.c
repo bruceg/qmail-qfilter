@@ -126,7 +126,6 @@ bool read_envelope()
     newbuf = malloc(sizeof(bufchain));
     newbuf->len = rd;
     newbuf->buf = malloc(rd);
-    newbuf->next = 0;
     memcpy(newbuf->buf, buf, rd);
     if(tail)
       tail->next = newbuf;
@@ -135,6 +134,7 @@ bool read_envelope()
     tail = newbuf;
     env_len += rd;
   }
+  tail->next = 0;
 
   /* copy the buffer chain into a single buffer */
   ptr = malloc(env_len);
