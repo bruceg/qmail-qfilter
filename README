@@ -2,7 +2,7 @@ qmail-qfilter
 qmail-queue multi-filter front end
 Bruce Guenter <bruceg@em.ca>
 Version 1.2
-April 26, 2000
+May 11, 2000
 
 This program allows the body of a message to be filtered through a
 series of filters before being passed to the real qmail-queue program,
@@ -23,7 +23,7 @@ How to install:
   linker, and installation paths.
 - Run "make"
 
-How to use:
+How to use, with the QMAILQUEUE patch applied to qmail:
 
 - Create a script containing an invocation of qmail-qfilter.  For
   example, a script that uses qmail-inject as a front end to qmail-queue
@@ -37,6 +37,18 @@ How to use:
 - You're all set!  In our example, all messages sent from the IP A.B.C.D
   will have their content filtered through qmail-inject, which will add
   missing "From:", "Date:", and "Message-Id:" headers.
+
+How to use, without the QMAILQUEUE patch:
+- Change the definition of QMAIL_QUEUE in qmail-qfilter.c to a different
+  value, either by editing the source file or by modifying the CFLAGS
+  line in the Makefile to read:
+	CFLAGS  = -O -Wall -DQMAIL_QUEUE=\"/var/qmail/bin/qmail-queue-old\"
+- Compile qmail-qfilter.
+- Rename qmail-queue to the new filename specified above.
+- Create a script to replace qmail-queue that contains an invocation of
+  qmail-qfilter, as described in the previous example.
+- You're all set!  All mail entering the queue will be filtered by your
+  filter.
 
 Changes in version 1.2:
 - Fixed a couple of minor bugs in error return codes in run_filters.
