@@ -53,6 +53,8 @@ const bool true = 0 == 0;
 #define ENVIN 3
 #define ENVOUT 4
 
+static const char* qqargv[2];
+
 /* a replacement for setenv(3) for systems that don't have one */
 bool mysetenv(const char* key, const char* val, size_t vallen)
 {
@@ -335,6 +337,9 @@ int main(int argc, char* argv[])
   
   filters = parse_args(argc-1, argv+1);
 
+  if ((qqargv[0] = getenv("QQF_QMAILQUEUE")) == 0)
+    qqargv[0] = QMAIL_QUEUE;
+
   copy_fd(0, 0);
   copy_fd(1, ENVIN);
   if(!read_envelope())
@@ -343,6 +348,6 @@ int main(int argc, char* argv[])
   run_filters(filters);
 
   move_fd(ENVIN, 1);
-  execl(QMAIL_QUEUE, QMAIL_QUEUE, 0);
+  execv(qqargv[0], (char**)qqargv);
   return QQ_INTERNAL;
 }

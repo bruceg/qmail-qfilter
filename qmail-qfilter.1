@@ -54,8 +54,22 @@ unsets
 It also sets
 .B QMAILRCPTS
 to the list of envelope recipients, each followed by a newline.
+.P
+If
+.B QQF_QMAILQUEUE
+is set, its value is used in place of
+.BR qmail-queue .
 .SH "SEE ALSO"
 qmail-queue(8)
+.SH NOTES
+.B $QMAILQUEUE
+is deliberately not used to override
+.B qmail-queue
+in order to avoid recursive loops with configurations that set
+.B $QMAILQUEUE
+to invoke
+.B qmail-qfilter
+itself.
 .SH WARNINGS
 If you are using
 .B qmail-inject -n
