@@ -145,16 +145,11 @@ void parse_rcpts(int offset)
 
 void parse_envelope(void)
 {
-  int rcpts = parse_sender();
-  parse_rcpts(rcpts);
-}
-
-/* Read the envelope from FD 1, and parse the sender address */
-void read_envelope()
-{
+  int rcpts;
   if ((env = mmap(0, env_len, PROT_READ, MAP_PRIVATE, ENVIN, 0)) == MAP_FAILED)
     exit(QQ_OOM);
-  parse_envelope();
+  rcpts = parse_sender();
+  parse_rcpts(rcpts);
 }
 
 /* Create a temporary invisible file opened for read/write */
@@ -335,7 +330,7 @@ int main(int argc, char* argv[])
 
   copy_fd(0, 0, &msg_len);
   copy_fd(1, ENVIN, &env_len);
-  read_envelope();
+  parse_envelope();
   mktmpfd(QQFD);
 
   run_filters(filters);
