@@ -1,8 +1,8 @@
 qmail-qfilter
 qmail-queue multi-filter front end
 Bruce Guenter <bruceg@em.ca>
-Version 1.5
-2001-06-12
+Version 1.6
+2001-09-21
 
 This program allows the body of a message to be filtered through a
 series of filters before being passed to the real qmail-queue program,
