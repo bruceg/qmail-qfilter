@@ -4,6 +4,8 @@ Changes in version 1.5
 - Fixed a bug in handling the empty sender envelope.
 - Added code to handle missing sender domains instead of rejecting them.
 - Fixed a bug in handling empty messages.
+- Don't close standard error when running filters so they can output log
+  messages.
 -------------------------------------------------------------------------------
 Changes in version 1.4
 
