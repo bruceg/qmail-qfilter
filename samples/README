@@ -1,0 +1,5 @@
+deny-filetypes blocks potentially dangerous attachments types based on
+their filename extensions.
+
+block-long-dates blocks messages with long date strings (exploit for an
+Outlook Express bug).
