@@ -44,10 +44,6 @@
 
 #define QQ_DROP_MSG 99
 
-typedef int bool;
-const bool false = 0;
-const bool true = 0 == 0;
-
 #define MSGIN 0
 #define MSGOUT 1
 #define ENVIN 3
