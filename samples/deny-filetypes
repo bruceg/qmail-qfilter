@@ -15,6 +15,7 @@
 # CMD - Windows NT command script?
 # COM - "Command" executable
 # CPL - Control Panel Extension
+# DLL - Dynamically Loadable Library
 # EXE - executable
 # HLP - Windows help files, can contain auto-executing VBScript
 # HTA - HTML application, can contain VBScript, JavaScript, etc.
@@ -31,7 +32,7 @@
 sub check_filename {
     local($_) = @_;
     print "filename: $_\n" if $test;
-    if(/\.(bat|chm|cmd|com|cpl|exe|hlp|hta|lnk|pif|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi) {
+    if(/\.(bat|chm|cmd|com|cpl|dll|exe|hlp|hta|lnk|pif|reg|scr|shs|vbe|vbs|wsf|wsh)$/oi) {
       print "Filenamed matched a banned extension!\n" if $test;
       exit(31);
     }
