@@ -4,9 +4,9 @@ Bruce Guenter <bruceg@em.ca>
 Version @VERSION@
 @TODAY@
 
-This program allows the body of a message to be filtered through a
-series of filters before being passed to the real qmail-queue program,
-and injected into the qmail queue.
+This program allows the body and/or envelope of a message to be filtered
+through a series of filters before being passed to the real qmail-queue
+program, and injected into the qmail queue.
 
 A mailing list has been set up to discuss this and other packages.
 To subscribe, send an email to:
@@ -18,6 +18,8 @@ Development versions of @PACKAGE@ are available via Subversion at:
 	svn://bruce-guenter.dyndns.org/@PACKAGE@/trunk
 
 Requirements:
+
+- bglibs is required for system dependancies.
 
 - This program is designed to take advantage of my QMAILQUEUE patch,
   which causes programs that would execute qmail-queue (such as
