@@ -324,11 +324,11 @@ int main(int argc, char* argv[])
   if(!filters)
     return QQ_INTERNAL;
 
-  msgfd = copy_fd(0);
-  if(msgfd < 0)
+  if ((msgfd = copy_fd(0)) < 0)
     return -msgfd;
 
-  envfd = copy_fd(1);
+  if ((envfd = copy_fd(1)) < 0)
+    return -envfd;
   if(!read_envelope(envfd))
     return QQ_BAD_ENV;
 
