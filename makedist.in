@@ -1,0 +1,11 @@
+PKGURL=http://em.ca/~bruceg/qmail-qfilter/
+LISTSUB=rpms-subscribe@lists.em.ca
+MAKERPM=true
+DOCS=""
+EXTRAS="README NEWS"
+EXTRAS_VER="README NEWS ANNOUNCEMENT"
+VERSION_BASE=""
+HOSTNAME=em.ca
+USERNAME=bruceg
+PKGDIR=www/qmail-qfilter
+LIST=rpms@lists.em.ca

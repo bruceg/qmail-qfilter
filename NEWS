@@ -1,0 +1,9 @@
+-------------------------------------------------------------------------------
+Changes in version 1.2
+
+- Fixed a couple of minor bugs in error return codes in run_filters.
+-------------------------------------------------------------------------------
+Changes in version 1.1
+
+- Fixed a bug in building the linked list of commands to run.
+-------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ Version: 1.2
 Release: 1
 Copyright: GPL
 Group: Utilities/System
-Source: http://em.ca/~bruceg/qmail-qfilter/qmail-qfilter-%{PACKAGE_VERSION}.tar.gz
+Source: http://em.ca/~bruceg/qmail-qfilter/%{PACKAGE_VERSION}/qmail-qfilter-%{PACKAGE_VERSION}.tar.gz
 BuildRoot: /tmp/qmail-qfilter
 URL: http://em.ca/~bruceg/qmail-qfilter/
 Packager: Bruce Guenter <bruceg@em.ca>

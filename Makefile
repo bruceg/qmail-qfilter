@@ -10,7 +10,8 @@ installdir = $(install) -d
 
 progs	= qmail-qfilter
 
-version	= 1.0
+PACKAGE = qmail-qfilter
+VERSION	= 1.2
 
 CC	= gcc
 CFLAGS	= -O -Wall
@@ -37,26 +38,26 @@ install.man:
 rpmdir	= $(HOME)/redhat
 
 dist:
-	rm -rf qmail-qfilter-$(version)
-	mkdir qmail-qfilter-$(version)
+	rm -rf qmail-qfilter-$(VERSION)
+	mkdir qmail-qfilter-$(VERSION)
 	cp *.c *.1 *.spec COPYING README Makefile \
-		qmail-qfilter-$(version)
-	tar -czvf qmail-qfilter-$(version).tar.gz qmail-qfilter-$(version)
-	rm -rf qmail-qfilter-$(version)
+		qmail-qfilter-$(VERSION)
+	tar -czvf qmail-qfilter-$(VERSION).tar.gz qmail-qfilter-$(VERSION)
+	rm -rf qmail-qfilter-$(VERSION)
 
 rpms: dist
-	rpm -ta --clean qmail-qfilter-$(version).tar.gz
-	mv $(rpmdir)/RPMS/i386/qmail-qfilter-$(version)-?.i386.rpm .
-	mv $(rpmdir)/SRPMS/qmail-qfilter-$(version)-?.src.rpm .
+	rpm -ta --clean qmail-qfilter-$(VERSION).tar.gz
+	mv $(rpmdir)/RPMS/i386/qmail-qfilter-$(VERSION)-?.i386.rpm .
+	mv $(rpmdir)/SRPMS/qmail-qfilter-$(VERSION)-?.src.rpm .
 
 www: dist rpms
-	install -m 444 qmail-qfilter-$(version).tar.gz historical
+	install -m 444 qmail-qfilter-$(VERSION).tar.gz historical
 	scp README \
-		qmail-qfilter-$(version).tar.gz \
-		qmail-qfilter-$(version)-?.*.rpm \
+		qmail-qfilter-$(VERSION).tar.gz \
+		qmail-qfilter-$(VERSION)-?.*.rpm \
 		bruceg@em.ca:www/qmail-qfilter
 
 clean:
 	$(RM) core *.o $(progs)
-	$(RM) qmail-qfilter-$(version).tar.gz
-	$(RM) qmail-qfilter-$(version)-?.*.rpm
+	$(RM) qmail-qfilter-$(VERSION).tar.gz
+	$(RM) qmail-qfilter-$(VERSION)-?.*.rpm
