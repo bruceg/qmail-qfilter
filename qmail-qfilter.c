@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/fcntl.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -83,6 +84,7 @@ void mysetenvu(const char* key, unsigned long val)
 
 static const char* env = 0;
 static size_t env_len = 0;
+static size_t msg_len = 0;
 
 /* Parse the sender address into user and host portions */
 int parse_sender(void)
@@ -125,15 +127,19 @@ void parse_rcpts(int offset)
   const char* ptr = env + offset;
   char* buf = malloc(len);
   char* tmp = buf;
+  unsigned long count;
+  count = 0;
   while(ptr < env + env_len && *ptr == 'T') {
     size_t rcptlen = strlen(++ptr);
     memcpy(tmp, ptr, rcptlen);
     tmp[rcptlen] = '\n';
     tmp += rcptlen + 1;
     ptr += rcptlen + 1;
+    ++count;
   }
   *tmp = 0;
   mysetenv("QMAILRCPTS", buf, tmp-buf);
+  mysetenvu("NUMRCPTS", count);
   free(buf);
 }
 
@@ -143,59 +149,11 @@ void parse_envelope(void)
   parse_rcpts(rcpts);
 }
 
-struct bufchain
-{
-  size_t len;
-  char* buf;
-  struct bufchain* next;
-};
-typedef struct bufchain bufchain;
-
 /* Read the envelope from FD 1, and parse the sender address */
 void read_envelope()
 {
-  bufchain* head = 0;
-  bufchain* tail = 0;
-  char* ptr;
-  
-  for(;;) {
-    char buf[BUFSIZE];
-    bufchain* newbuf;
-    ssize_t rd;
-
-    rd = read(ENVIN, buf, BUFSIZE);
-    if(rd == -1)
-      exit(QQ_BAD_ENV);
-    if(rd == 0)
-      break;
-    newbuf = malloc(sizeof(bufchain));
-    newbuf->len = rd;
-    newbuf->buf = malloc(rd);
-    memcpy(newbuf->buf, buf, rd);
-    if(tail)
-      tail->next = newbuf;
-    else
-      head = newbuf;
-    tail = newbuf;
-    env_len += rd;
-  }
-  if (!tail) exit(QQ_BAD_ENV);
-  tail->next = 0;
-  if (lseek(ENVIN, 0, SEEK_SET) != 0)
-    exit(QQ_WRITE_ERROR);
-
-  /* copy the buffer chain into a single buffer */
-  ptr = malloc(env_len);
-  env = ptr;
-  while(head) {
-    bufchain* next = head->next;
-    memcpy(ptr, head->buf, head->len);
-    ptr += head->len;
-    free(head->buf);
-    free(head);
-    head = next;
-  }
-  
+  if ((env = mmap(0, env_len, PROT_READ, MAP_PRIVATE, ENVIN, 0)) == MAP_FAILED)
+    exit(QQ_OOM);
   parse_envelope();
 }
 
@@ -228,7 +186,7 @@ void move_fd(int currfd, int newfd)
 }
 
 /* Copy from one FD to a temporary FD */
-void copy_fd(int fdin, int fdout, const char* var)
+void copy_fd(int fdin, int fdout, size_t* var)
 {
   unsigned long bytes;
   int tmp = mktmpfile();
@@ -250,7 +208,7 @@ void copy_fd(int fdin, int fdout, const char* var)
   if (lseek(tmp, 0, SEEK_SET) != 0)
     exit(QQ_WRITE_ERROR);
   move_fd(tmp, fdout);
-  mysetenvu(var, bytes);
+  *var = bytes;
 }
 
 struct command
@@ -297,7 +255,7 @@ static void mktmpfd(int fd)
 }
 
 static void move_unless_empty(int src, int dst, const void* reopen,
-			      const char *var)
+			      size_t* var)
 {
   struct stat st;
   if (fstat(src, &st) != 0)
@@ -306,7 +264,7 @@ static void move_unless_empty(int src, int dst, const void* reopen,
     move_fd(src, dst);
     if (reopen)
       mktmpfd(src);
-    mysetenvu(var, st.st_size);
+    *var = st.st_size;
   }
   else
     if (!reopen)
@@ -344,6 +302,8 @@ void run_filters(const command* first)
     pid_t pid;
     int status;
 
+    mysetenvu("ENVSIZE", env_len);
+    mysetenvu("MSGSIZE", msg_len);
     pid = fork();
     if(pid == -1)
       exit(QQ_OOM);
@@ -357,8 +317,8 @@ void run_filters(const command* first)
       exit(QQ_INTERNAL);
     if(WEXITSTATUS(status))
       exit((WEXITSTATUS(status) == QQ_DROP_MSG) ? 0 : WEXITSTATUS(status));
-    move_unless_empty(MSGOUT, MSGIN, c->next, "MSGSIZE");
-    move_unless_empty(ENVOUT, ENVIN, c->next, "ENVSIZE");
+    move_unless_empty(MSGOUT, MSGIN, c->next, &msg_len);
+    move_unless_empty(ENVOUT, ENVIN, c->next, &env_len);
     if (lseek(QQFD, 0, SEEK_SET) != 0)
       exit(QQ_WRITE_ERROR);
   }
@@ -373,8 +333,8 @@ int main(int argc, char* argv[])
   if ((qqargv[0] = getenv("QQF_QMAILQUEUE")) == 0)
     qqargv[0] = QMAIL_QUEUE;
 
-  copy_fd(0, 0, "MSGSIZE");
-  copy_fd(1, ENVIN, "ENVSIZE");
+  copy_fd(0, 0, &msg_len);
+  copy_fd(1, ENVIN, &env_len);
   read_envelope();
   mktmpfd(QQFD);
 
