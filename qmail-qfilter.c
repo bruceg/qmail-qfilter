@@ -227,8 +227,8 @@ int mktmpfile()
   return fd;
 }
 
-/* Copy the message from FD0 to the first temporary file */
-int copy_message()
+/* Copy from one FD to a temporary FD */
+int copy_fd(int fdin)
 {
   int tmp = mktmpfile();
   if(tmp == -1)
@@ -237,7 +237,7 @@ int copy_message()
   /* Copy the message into the temporary file */
   for(;;) {
     char buf[BUFSIZE];
-    ssize_t rd = read(0, buf, BUFSIZE);
+    ssize_t rd = read(fdin, buf, BUFSIZE);
     if(rd == -1)
       return -QQ_WRITE_ERROR;
     if(rd == 0)
@@ -356,7 +356,7 @@ int main(int argc, char* argv[])
   if(pipe(envpipe) == -1)
     return QQ_WRITE_ERROR;
 
-  tmpfd = copy_message();
+  tmpfd = copy_fd(0);
   if(tmpfd < 0)
     return -tmpfd;
 
