@@ -46,7 +46,7 @@ rpmdir	= $(HOME)/redhat
 dist:
 	rm -rf qmail-qfilter-$(VERSION)
 	mkdir qmail-qfilter-$(VERSION)
-	cp *.c *.1 *.spec COPYING README Makefile \
+	cp *.c *.1 *.spec COPYING README Makefile deny-filetypes \
 		qmail-qfilter-$(VERSION)
 	tar -czvf qmail-qfilter-$(VERSION).tar.gz qmail-qfilter-$(VERSION)
 	rm -rf qmail-qfilter-$(VERSION)
