@@ -68,6 +68,19 @@ void mysetenv(const char* key, const char* val, size_t vallen)
     exit(QQ_OOM);
 }
 
+void mysetenvu(const char* key, unsigned long val)
+{
+  char buf[40];
+  int i;
+  i = sizeof buf;
+  buf[--i] = 0;
+  do {
+    buf[--i] = (val % 10) + '0';
+    val /= 10;
+  } while (val > 0);
+  mysetenv(key, buf + i, sizeof buf - 1 - i);
+}
+
 static const char* env = 0;
 static size_t env_len = 0;
 
@@ -215,12 +228,13 @@ void move_fd(int currfd, int newfd)
 }
 
 /* Copy from one FD to a temporary FD */
-void copy_fd(int fdin, int fdout)
+void copy_fd(int fdin, int fdout, const char* var)
 {
+  unsigned long bytes;
   int tmp = mktmpfile();
   
   /* Copy the message into the temporary file */
-  for(;;) {
+  for(bytes = 0;;) {
     char buf[BUFSIZE];
     ssize_t rd = read(fdin, buf, BUFSIZE);
     if(rd == -1)
@@ -229,12 +243,14 @@ void copy_fd(int fdin, int fdout)
       break;
     if(write(tmp, buf, rd) != rd)
       exit(QQ_WRITE_ERROR);
+    bytes += rd;
   }
 
   close(fdin);
   if (lseek(tmp, 0, SEEK_SET) != 0)
     exit(QQ_WRITE_ERROR);
   move_fd(tmp, fdout);
+  mysetenvu(var, bytes);
 }
 
 struct command
@@ -280,7 +296,8 @@ static void mktmpfd(int fd)
   move_fd(tmp, fd);
 }
 
-static void move_unless_empty(int src, int dst, const void* reopen)
+static void move_unless_empty(int src, int dst, const void* reopen,
+			      const char *var)
 {
   struct stat st;
   if (fstat(src, &st) != 0)
@@ -289,6 +306,7 @@ static void move_unless_empty(int src, int dst, const void* reopen)
     move_fd(src, dst);
     if (reopen)
       mktmpfd(src);
+    mysetenvu(var, st.st_size);
   }
   else
     if (!reopen)
@@ -339,8 +357,8 @@ void run_filters(const command* first)
       exit(QQ_INTERNAL);
     if(WEXITSTATUS(status))
       exit((WEXITSTATUS(status) == QQ_DROP_MSG) ? 0 : WEXITSTATUS(status));
-    move_unless_empty(MSGOUT, MSGIN, c->next);
-    move_unless_empty(ENVOUT, ENVIN, c->next);
+    move_unless_empty(MSGOUT, MSGIN, c->next, "MSGSIZE");
+    move_unless_empty(ENVOUT, ENVIN, c->next, "ENVSIZE");
     if (lseek(QQFD, 0, SEEK_SET) != 0)
       exit(QQ_WRITE_ERROR);
   }
@@ -355,8 +373,8 @@ int main(int argc, char* argv[])
   if ((qqargv[0] = getenv("QQF_QMAILQUEUE")) == 0)
     qqargv[0] = QMAIL_QUEUE;
 
-  copy_fd(0, 0);
-  copy_fd(1, ENVIN);
+  copy_fd(0, 0, "MSGSIZE");
+  copy_fd(1, ENVIN, "ENVSIZE");
   read_envelope();
   mktmpfd(QQFD);
 
