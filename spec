@@ -4,9 +4,9 @@ Version: @VERSION@
 Release: 1
 Copyright: GPL
 Group: Utilities/System
-Source: http://em.ca/~bruceg/@PACKAGE@/%{PACKAGE_VERSION}/@PACKAGE@-%{PACKAGE_VERSION}.tar.gz
-BuildRoot: /tmp/@PACKAGE@-root
-URL: http://em.ca/~bruceg/@PACKAGE@/
+Source: http://untroubled.org/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz
+BuildRoot: %{_tmppath}/@PACKAGE@-root
+URL: http://untroubled.org/@PACKAGE@/
 Packager: Bruce Guenter <bruceg@em.ca>
 
 %description
@@ -18,18 +18,28 @@ and injected into the qmail queue.
 %setup
 
 %build
-make CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-s" prefix=/usr
+echo %{_bindir} >conf-bin
+echo %{_mandir} >conf-man
+echo gcc %{optflags} >conf-cc
+echo gcc -s >conf-ld
+make
 
 %install
-rm -fr $RPM_BUILD_ROOT
-
-make prefix=$RPM_BUILD_ROOT/usr install
+rm -fr %{buildroot}
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_mandir}
+echo %{buildroot}%{_bindir} >conf-bin
+echo %{buildroot}%{_mandir} >conf-man
+rm conf_bin.c conf_man.c insthier.o installer instcheck
+make installer instcheck
+./installer
+./instcheck
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
 %doc COPYING README samples
-/usr/bin/qmail-qfilter
-/usr/man/man1/*
+%{_bindir}/qmail-qfilter
+%{_mandir}/man1/*
