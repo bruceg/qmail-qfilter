@@ -82,15 +82,20 @@ int parse_sender(void)
     return (putenv("QMAILUSER=") != -1 && putenv("QMAILHOST=") != -1) ?  2 : 0;
 
   at = strrchr(ptr, '@');
-  if(!at)
-    return 0;
-  len = strlen(at+1);
-  
-  if(!mysetenv("QMAILUSER", ptr, at-ptr) ||
-     !mysetenv("QMAILHOST", at+1, len))
-    return 0;
-  
-  return at+1+len - env + 1;
+  if(!at) {
+    len = strlen(ptr);
+    if(!mysetenv("QMAILUSER", ptr, len) ||
+       putenv("QMAILHOST=") == -1)
+      return 0;
+  }
+  else {
+    len = strlen(at);
+    if(!mysetenv("QMAILUSER", ptr, at-ptr) ||
+       !mysetenv("QMAILHOST", at+1, len-1))
+      return 0;
+    len += at-env;
+  }
+  return len + 1;
 }
 
 bool parse_rcpts(int offset)
