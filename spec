@@ -1,7 +1,7 @@
 Name: @PACKAGE@
 Summary: qmail-queue filter front end
 Version: @VERSION@
-Release: 2
+Release: 1
 Copyright: GPL
 Group: Utilities/System
 Source: http://em.ca/~bruceg/@PACKAGE@/%{PACKAGE_VERSION}/@PACKAGE@-%{PACKAGE_VERSION}.tar.gz
