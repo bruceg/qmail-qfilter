@@ -60,6 +60,15 @@ It also sets
 .B QMAILRCPTS
 to the list of envelope recipients, each followed by a newline.
 .P
+It also sets
+.B ENVSIZE
+to the size of the envelope,
+.B MSGSIZE
+to the length of the message, and
+.B NUMRCPTS
+to the number of recipients. These values are updated before each
+filter is run.
+.P
 If
 .B QQF_QMAILQUEUE
 is set, its value is used in place of
