@@ -23,9 +23,12 @@ if it can't create the temporary files or has problems executing the
 filters.
 Returns 91 (bad envelope data) if it can't read or parse the envelope
 data.
-If a filter exits with a non-zero exit code,
+If a filter returns anything other than 0 or 99,
 .B qmail-qfilter
 returns its exit code.
+If a filter returns 99,
+.B qmail-qfilter
+returns 0 immediately without running any other filters.
 Otherwise returns the exit code of
 .BR qmail-queue .
 .SH ENVIRONMENT
