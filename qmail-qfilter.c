@@ -107,9 +107,9 @@ int parse_sender(void)
     if(!mysetenv("QMAILUSER", ptr, at-ptr) ||
        !mysetenv("QMAILHOST", at+1, len-1))
       return 0;
-    len += at-env;
+    ptr = at;
   }
-  return len + 1;
+  return ptr + len + 1 - env;
 }
 
 bool parse_rcpts(int offset)

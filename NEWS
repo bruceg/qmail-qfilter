@@ -3,6 +3,8 @@ Changes in version 1.6
 
 - Added a work-around for systems that lack unsetenv (notably Solaris).
 
+- Fixed a off-by-one bug in parsing sender addresses without an "@".
+
 Development of this version has been sponsored by FutureQuest, Inc.
 ossi@FutureQuest.net  http://www.FutureQuest.net/
 -------------------------------------------------------------------------------
