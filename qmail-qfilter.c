@@ -44,17 +44,6 @@
 
 #define QQ_DROP_MSG 99
 
-/* remap the appropriate FDs and exec qmail-queue */
-int run_qmail_queue(int tmpfd, int envpipe[2])
-{
-  if(close(envpipe[1]) == -1 ||
-     dup2(tmpfd, 0) != 0 || close(tmpfd) == -1 ||
-     dup2(envpipe[0], 1) != 1 || close(envpipe[0]) == -1)
-    return QQ_WRITE_ERROR;
-  execl(QMAIL_QUEUE, QMAIL_QUEUE, 0);
-  return QQ_INTERNAL;
-}
-
 typedef int bool;
 const bool false = 0;
 const bool true = 0 == 0;
@@ -147,7 +136,7 @@ struct bufchain
 typedef struct bufchain bufchain;
 
 /* Read the envelope from FD 1, and parse the sender address */
-bool read_envelope()
+bool read_envelope(int fd)
 {
   bufchain* head = 0;
   bufchain* tail = 0;
@@ -158,7 +147,7 @@ bool read_envelope()
     bufchain* newbuf;
     ssize_t rd;
 
-    rd = read(1, buf, BUFSIZE);
+    rd = read(fd, buf, BUFSIZE);
     if(rd == -1)
       return false;
     if(rd == 0)
@@ -176,6 +165,8 @@ bool read_envelope()
   }
   if (!tail) return false;
   tail->next = 0;
+  if (lseek(fd, 0, SEEK_SET) != 0)
+    return 0;
 
   /* copy the buffer chain into a single buffer */
   ptr = malloc(env_len);
@@ -190,24 +181,6 @@ bool read_envelope()
   }
   
   return parse_envelope();
-}
-
-/* Write out the envelope to a pipe */
-int write_envelope(int envpipe[2])
-{
-  if(close(envpipe[0]) == -1)
-    return 1;
-  /* Funny logic here to catch short writes */
-  while(env_len > 0) {
-    ssize_t w = write(envpipe[1], env, env_len);
-    if(w == -1)
-      return 1;
-    env += w;
-    env_len -= w;
-  }
-  if(close(envpipe[1]) == -1)
-    return 1;
-  return 0;
 }
 
 /* Create a temporary invisible file opened for read/write */
@@ -343,38 +316,32 @@ int run_filters(command* first, int fdin)
 
 int main(int argc, char* argv[])
 {
-  int envpipe[2];
-  int tmpfd;
-  pid_t queue_pid;
-  int error;
+  int msgfd;
+  int envfd;
   command* filters;
   
   filters = parse_args(argc-1, argv+1);
   if(!filters)
     return QQ_INTERNAL;
 
-  if(pipe(envpipe) == -1)
-    return QQ_WRITE_ERROR;
+  msgfd = copy_fd(0);
+  if(msgfd < 0)
+    return -msgfd;
 
-  tmpfd = copy_fd(0);
-  if(tmpfd < 0)
-    return -tmpfd;
-
-  if(!read_envelope())
+  envfd = copy_fd(1);
+  if(!read_envelope(envfd))
     return QQ_BAD_ENV;
 
-  tmpfd = run_filters(filters, tmpfd);
-  if(tmpfd < 0)
-    return (-tmpfd == QQ_DROP_MSG) ? 0 : -tmpfd;
+  msgfd = run_filters(filters, msgfd);
+  if(msgfd < 0)
+    return (-msgfd == QQ_DROP_MSG) ? 0 : -msgfd;
 
-  queue_pid = fork();
-  switch(queue_pid) {
-  case 0:
-    return run_qmail_queue(tmpfd, envpipe);
-  case -1:
-    return QQ_OOM;
-  }
-
-  error = write_envelope(envpipe) ? QQ_WRITE_ERROR : 0;
-  return wait_qq(queue_pid, error);
+  if (dup2(msgfd, 0) != 0
+      || close(msgfd) != 0
+      || dup2(envfd, 1) != 1
+      || close(envfd) != 0
+      )
+    return QQ_INTERNAL;
+  execl(QMAIL_QUEUE, QMAIL_QUEUE, 0);
+  return QQ_INTERNAL;
 }
