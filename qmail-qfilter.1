@@ -37,6 +37,9 @@ and
 to the user and host portions of the envelope sender address, and
 unsets
 .BR QMAILNAME .
+It also sets
+.B QMAILRCPTS
+to the list of envelope recipients, each followed by a newline.
 .SH "SEE ALSO"
 qmail-queue(8)
 .SH WARNINGS
@@ -48,5 +51,14 @@ as one of the filters, you may want to unset
 and
 .B LOGNAME
 by using
-.B env -u MAILUSER -u USER -u LOGNAME qmail-inject
+.B env -u QMAILNAME -u MAILNAME -u NAME qmail-inject -n
 as the command to invoke qmail-inject.
+Note that some the
+.B env
+command with some OS's doesn't support the
+.B -u
+option.
+.P
+A message with an excessive number of recipients (more than 64K bytes of
+recipient data on Linux) will cause execution of the filter programs to
+fail, and for the message to be rejected.

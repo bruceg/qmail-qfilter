@@ -1,18 +1,19 @@
-// Copyright (C) 2000 Bruce Guenter <bruceg@em.ca>
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/* Copyright (C) 2000 Bruce Guenter <bruceg@em.ca>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,19 +23,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <unistd.h>
-
-/* Choose TMPDIR carefully.  See README for details. */
-#ifndef TMPDIR
-#define TMPDIR "/tmp"
-#endif
-
-#ifndef BUFSIZE
-#define BUFSIZE 4096
-#endif
-
-#ifndef QMAIL_QUEUE
-#define QMAIL_QUEUE "/var/qmail/bin/qmail-queue"
-#endif
 
 #define QQ_OOM 51
 #define QQ_WRITE_ERROR 53
@@ -76,25 +64,60 @@ static const char* env = 0;
 static size_t env_len = 0;
 
 /* Parse the sender address into user and host portions */
-bool parse_sender(const char* sender)
+int parse_sender(void)
 {
+  const char* ptr = env;
   char* at;
-
+  size_t len = strlen(ptr);
+  
+  if(*ptr != 'F')
+    return 0;
+  ++ptr;
+  
   unsetenv("QMAILNAME");
   
-  if(!sender[0])
+  if(!*ptr)
     return putenv("QMAILUSER=") != -1 &&
       putenv("QMAILHOST=") != -1;
 
-  at = strrchr(sender, '@');
+  at = strrchr(ptr, '@');
   if(!at)
-    return false;
+    return 0;
+  len = strlen(at+1);
+  
+  if(!mysetenv("QMAILUSER", ptr, at-ptr) ||
+     !mysetenv("QMAILHOST", at+1, len))
+    return 0;
+  
+  return at+1+len - env + 1;
+}
 
-  if(!mysetenv("QMAILUSER", sender, at-sender) ||
-     !mysetenv("QMAILHOST", at+1, strlen(at+1)))
-    return false;
+bool parse_rcpts(int offset)
+{
+  size_t len = env_len - offset;
+  const char* ptr = env + offset;
+  char* buf = malloc(len);
+  char* tmp = buf;
+  bool result;
+  while(ptr < env + env_len && *ptr == 'T') {
+    size_t rcptlen = strlen(++ptr);
+    memcpy(tmp, ptr, rcptlen);
+    tmp[rcptlen] = '\n';
+    tmp += rcptlen + 1;
+    ptr += rcptlen + 1;
+  }
+  *tmp = 0;
+  result = mysetenv("QMAILRCPTS", buf, tmp-buf);
+  free(buf);
+  return result;
+}
 
-  return true;
+bool parse_envelope(void)
+{
+  int rcpts = parse_sender();
+  if(!rcpts)
+    return false;
+  return parse_rcpts(rcpts);
 }
 
 struct bufchain
@@ -105,12 +128,11 @@ struct bufchain
 };
 typedef struct bufchain bufchain;
 
-/* Read the envelope from FD 1. */
+/* Read the envelope from FD 1, and parse the sender address */
 bool read_envelope()
 {
   bufchain* head = 0;
   bufchain* tail = 0;
-  const char* env_sender;
   char* ptr;
   
   for(;;) {
@@ -148,11 +170,7 @@ bool read_envelope()
     head = next;
   }
   
-  if(env[0] != 'F')
-    return 1;
-  env_sender = env+1;
-  
-  return parse_sender(env_sender);
+  return parse_envelope();
 }
 
 /* Write out the envelope to a pipe */

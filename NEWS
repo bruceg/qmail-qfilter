@@ -1,4 +1,14 @@
 -------------------------------------------------------------------------------
+Changes in version 1.3
+
+- A new environment variable, "QMAILRCPTS" is set to a newline-seperated
+  list of the recipients.  Note that if a large number of recipients are
+  encountered (ex more than 64KB worth under Linux), this will cause
+  execution of the filters to fail and the message will be rejected.  I
+  consider this acceptable, since 64KB worth of recipients is likely
+  more than 1000 anyways.
+- Removed some GNU-specific constructs from the source and Makefile.
+-------------------------------------------------------------------------------
 Changes in version 1.2
 
 - Fixed a couple of minor bugs in error return codes in run_filters.

@@ -11,10 +11,13 @@ installdir = $(install) -d
 progs	= qmail-qfilter
 
 PACKAGE = qmail-qfilter
-VERSION	= 1.2
+VERSION	= 1.3
 
 CC	= gcc
-CFLAGS	= -O -Wall
+# Choose TMPDIR carefully.  See README for details.
+DEFINES = -DTMPDIR=\"/tmp\" -DBUFSIZE=4096 \
+	-DQMAIL_QUEUE=\"/var/qmail/bin/qmail-queue\"
+CFLAGS	= -O -Wall -g
 LD	= $(CC)
 LDFLAGS	= -g
 LIBS	=
@@ -24,6 +27,9 @@ all: $(progs)
 
 qmail-qfilter: qmail-qfilter.o
 	$(LD) $(LDFLAGS) -o $@ qmail-qfilter.o $(LIBS)
+
+.c.o: $<
+	$(CC) $(CFLAGS) $(DEFINES) -c $<
 
 install: install.bin install.man
 
@@ -44,18 +50,6 @@ dist:
 		qmail-qfilter-$(VERSION)
 	tar -czvf qmail-qfilter-$(VERSION).tar.gz qmail-qfilter-$(VERSION)
 	rm -rf qmail-qfilter-$(VERSION)
-
-rpms: dist
-	rpm -ta --clean qmail-qfilter-$(VERSION).tar.gz
-	mv $(rpmdir)/RPMS/i386/qmail-qfilter-$(VERSION)-?.i386.rpm .
-	mv $(rpmdir)/SRPMS/qmail-qfilter-$(VERSION)-?.src.rpm .
-
-www: dist rpms
-	install -m 444 qmail-qfilter-$(VERSION).tar.gz historical
-	scp README \
-		qmail-qfilter-$(VERSION).tar.gz \
-		qmail-qfilter-$(VERSION)-?.*.rpm \
-		bruceg@em.ca:www/qmail-qfilter
 
 clean:
 	$(RM) core *.o $(progs)
