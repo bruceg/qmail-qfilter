@@ -309,10 +309,11 @@ static void read_qqfd(void)
   if (fstat(QQFD, &st) != 0)
     exit(QQ_INTERNAL);
   if (st.st_size > 0) {
-    if ((buf = malloc(st.st_size)) == 0)
+    if ((buf = malloc(st.st_size + 1)) == 0)
       exit(QQ_INTERNAL);
     if (read(QQFD, buf, st.st_size) != st.st_size)
       exit(QQ_INTERNAL);
+    buf[st.st_size] = 0;
     qqargv[0] = buf;
   }
   close(QQFD);
