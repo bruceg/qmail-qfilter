@@ -90,7 +90,7 @@ size_t parse_sender(const char* env)
 {
   const char* ptr = env;
   char* at;
-  size_t len = strlen(ptr);
+  size_t len = strlen(env);
   
   if(*ptr != 'F')
     exit(QQ_BAD_ENV);
@@ -258,12 +258,12 @@ static void move_unless_empty(int src, int dst, const void* reopen,
     exit(QQ_INTERNAL);
   if (st.st_size > 0) {
     move_fd(src, dst);
+    *var = st.st_size;
     if (reopen) {
       mktmpfd(src);
       if (src == ENVOUT)
 	parse_envelope();
     }
-    *var = st.st_size;
   }
   else
     if (!reopen)

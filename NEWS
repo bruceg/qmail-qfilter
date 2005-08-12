@@ -1,6 +1,8 @@
 -------------------------------------------------------------------------------
 Changes in version 2.1
 
+- Fixed a bug triggered by a filter modifying the envelope data and
+  changing its length.  Thanks Dale Woolridge.
 
 Development of this version has been sponsored by FutureQuest, Inc.
 ossi@FutureQuest.net  http://www.FutureQuest.net/
