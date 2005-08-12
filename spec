@@ -27,14 +27,7 @@ make
 
 %install
 rm -fr %{buildroot}
-mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_mandir}
-echo %{buildroot}%{_bindir} >conf-bin
-echo %{buildroot}%{_mandir} >conf-man
-rm conf_bin.c conf_man.c insthier.o installer instcheck
-make installer instcheck
-./installer
-./instcheck
+make install install_prefix=%{buildroot}
 
 %clean
 rm -rf %{buildroot}
