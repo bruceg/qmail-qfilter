@@ -332,6 +332,8 @@ int main(int argc, char* argv[])
   if ((qqargv[0] = getenv("QQF_QMAILQUEUE")) == 0)
     qqargv[0] = QMAIL_QUEUE;
 
+  mysetenvu("QMAILPPID", getppid());
+
   copy_fd(0, 0, &msg_len);
   copy_fd(1, ENVIN, &env_len);
   parse_envelope();

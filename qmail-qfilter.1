@@ -47,6 +47,13 @@ returns 0 immediately without running any other filters.
 Otherwise returns the exit code of
 .BR qmail-queue .
 .SH ENVIRONMENT
+.B qmail-qfilter
+sets
+.B QMAILPPID
+to the PID of its parent (e.g.,
+.BR qmail-smtpd )
+so that a filter can log the PID of the session that invoked it.
+.P
 For cmpatibility with previous versions,
 .B qmail-qfilter
 sets
