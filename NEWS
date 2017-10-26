@@ -1,5 +1,5 @@
 - Set $QMAILPPID in the executed filters so filters know the grandparent
-  PID (ie qmail-smtpd, etc). Thanks Amitai Schlair.
+  PID (ie qmail-smtpd, etc). Thanks Amitai Schleier.
 -------------------------------------------------------------------------------
 Changes in version 2.1
 
