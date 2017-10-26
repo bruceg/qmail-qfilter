@@ -27,9 +27,6 @@ Requirements:
 
 How to install:
 
-- Check the definitions at the top of qmail-qfilter.c, especially the
-  value of TMPDIR.  This should be set to a temporary directory that
-  only the executor of qmail-qfilter has write access to.
 - Check the conf-* files for appropriate values for your compiler and
   linker, and installation paths.
 - Run "make"
