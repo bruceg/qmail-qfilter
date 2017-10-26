@@ -27,7 +27,7 @@ This provides compatibility for existing filters that do not know about
 the envelope.
 .B qmail-qfilter
 also opens up file descriptor 5 to a temporary file.  If this file is
-empty after all the filters have executed, its contents are read and
+not empty after all the filters have executed, its contents are read and
 used to specify a program to execute in place of
 .BR qmail-queue .
 Each filter on the command line is separated with
