@@ -2,7 +2,7 @@ Name: @PACKAGE@
 Summary: qmail-queue filter front end
 Version: @VERSION@
 Release: 1
-License: GPL
+License: Unlicense
 Group: Utilities/System
 Source: http://untroubled.org/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz
 BuildRoot: %{_tmppath}/@PACKAGE@-root
