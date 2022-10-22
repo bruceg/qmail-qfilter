@@ -105,7 +105,7 @@ size_t parse_sender(const char* env)
   return ptr + len + 1 - env;
 }
 
-void parse_rcpts(const char* env, int offset)
+void parse_rcpts(const char* env, size_t offset)
 {
   size_t len = env_len - offset;
   const char* ptr = env + offset;
