@@ -67,8 +67,8 @@ void mysetenvu(const char* key, unsigned long val)
   mysetenv(key, buf + i, sizeof buf - 1 - i);
 }
 
-static size_t env_len = 0;
-static size_t msg_len = 0;
+static size_t env_len;
+static size_t msg_len;
 
 /* Parse the sender address into user and host portions */
 size_t parse_sender(const char* env)
