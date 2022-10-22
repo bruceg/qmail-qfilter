@@ -75,8 +75,12 @@ size_t parse_sender(const char* env)
 {
   const char* ptr = env;
   char* at;
-  size_t len = strlen(env);
-  
+  const char *nul = memchr(env, 0, env_len);
+  size_t len;
+
+  if(!nul)
+    exit(QQ_BAD_ENV);
+
   if(*ptr != 'F')
     exit(QQ_BAD_ENV);
   ++ptr;
