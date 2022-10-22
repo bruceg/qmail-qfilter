@@ -46,6 +46,8 @@ void mysetenv(const char* key, const char* val, size_t vallen)
   
   keylen = strlen(key);
   tmp = malloc(keylen + 1 + vallen + 1);
+  if(!tmp)
+    exit(QQ_INTERNAL);
   memcpy(tmp, key, keylen);
   tmp[keylen] = '=';
   memcpy(tmp+keylen+1, val, vallen);
@@ -112,6 +114,8 @@ void parse_rcpts(const char* env, int offset)
   char* buf = malloc(len);
   char* tmp = buf;
   unsigned long count;
+  if(!buf)
+    exit(QQ_INTERNAL);
   count = 0;
   while(ptr < env + env_len && *ptr == 'T') {
     size_t rcptlen = strlen(++ptr);
@@ -213,6 +217,8 @@ command* parse_args(int argc, char* argv[])
       exit(QQ_INTERNAL);
     argv[end] = 0;
     cmd = malloc(sizeof(command));
+    if(!cmd)
+      exit(QQ_INTERNAL);
     cmd->argv = argv;
     cmd->next = 0;
     if(tail)
